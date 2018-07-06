@@ -1,2 +1,2 @@
-# Flappy-Bird-Genetic-Algorithm-
-An implementation of genetic algorithm on the flappy bird game.
+# Flappy-Bird-Genetic-Algorithm
+A program that uses neuro-evolution to learn to play Flappy Bird
