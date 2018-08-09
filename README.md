@@ -27,6 +27,6 @@ Basically, the game is executed once with a certain number of birds (The Populat
     
     Distance Travelled by the Bird - (Distance between the center of the bird and the center of the gap between the pipes.
 
-After the best bird parameters are selected, 10% of the birds in the next generation will be same as the perfect bird. The remaining 90% of the birds would be created using mutation.
+After the best bird parameters are selected, 10% of the birds in the next generation will be same as the best bird of previous generation. The remaining 90% of the birds would be created using mutation.
 
 The process repeats until and unless you get a near perfect bird, if not perfect.
