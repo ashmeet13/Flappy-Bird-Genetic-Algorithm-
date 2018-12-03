@@ -13,16 +13,17 @@ BLACK = (0,0,0)
 RED = (255,0,0)
 GREEN = (0,100,0)
 
-display_width = 1400
-display_height = 800
-FPS = 60
-pipe_gap = 200
-between_pipe = 300
-pipe_width = 100
-pipe_speed = 4
-score = 0
-velocity = 10
-pipe_count = display_width//(pipe_width+between_pipe)+2
+display_width = 1400             #Game Window Width
+display_height = 800             #Game Window Height
+FPS = 60                         #Game FPS
+pipe_gap = 200                   #Manages the pipe gap between the upper and bottom pipe
+between_pipe = 200               #Manages the distance between consecutive sets of pipe
+pipe_width = 100                 #Manages the width of each set of pipe
+pipe_speed = 6                   #Manages the speed with which the pipe move towards the bird
+score = 0                        #Init the score
+velocity = 10                    #Velocity of the Bird
+pipe_count = display_width//(pipe_width+between_pipe)+2              #Calculates the the number of pipes that would
+                                                                     #fit the screen.
 
 '''
 Game Variables
@@ -203,6 +204,7 @@ def run_game(generation,score,bias_list):
     run_score = 0
     best_score = []
     best_bias = []
+    manage = []
     global check
     global gameExit
     global master_parameters
@@ -234,8 +236,10 @@ def run_game(generation,score,bias_list):
                                             pygame.sprite.Sprite.kill(bird)
                                             check[bird_index] = 1
                                             return parameter_list[bird_index],run_score,bias_list[bird_index]
+                    
 
         for bird_index in range(len(bird_list)):
+
             if check[bird_index]==0:
                 bias1,bias2 = bias_list[bird_index][0],bias_list[bird_index][1]
                 bird = bird_list[bird_index]
@@ -283,14 +287,23 @@ def run_game(generation,score,bias_list):
                 out = nn(arr,parameter_list[bird_index],bias2)
                 if out>0.5:
                     bird.jump()
+
+
+                '''
+                This section checks for collison of the bird with a boundary
+                or the currently selected pair of pipes
+                '''
+
+                # -----------Boundary Collision-----------
                 if bird.boundary_collison():
                     pygame.sprite.Sprite.kill(bird)
                     best_score.append(fitness)
                     best_bias.append([bias1,bias2])
                     check[bird_index] = 1
+                # -----------Pipe Collision-----------
                 for x in pipe_collision:
                     c=0
-                    if pygame.sprite.collide_rect(bird,x):
+                    if pygame.sprite.collide_rect(bird,x) and check[bird_index]==0:
                         bird_hits = pygame.sprite.spritecollide(bird,pipe_group,False,pygame.sprite.collide_mask)
                         if bird_hits:
                             c = 1
@@ -298,21 +311,47 @@ def run_game(generation,score,bias_list):
                             best_score.append(fitness)
                             best_bias.append([bias1,bias2])
                             check[bird_index] = 1
+                            break
                     if c==1:
                         break
                         
+            '''
+            Once all the birds are dead this part removes the best parameters
+            and returns those back so that they can be mutated
+            '''
             if sum(check)==len(check):
                 bias_return = []
                 if max(best_score)>score:
-                    master_parameters = parameter_list[list(best_score).index(max(best_score))]
-                    score = max(best_score)
-                    bias_return = bias_list[list(best_bias).index(max(best_bias))]
+                    try:
+                        master_parameters = parameter_list[list(best_score).index(max(best_score))]
+                        score = max(best_score)
+                        bias_return = bias_list[list(best_bias).index(max(best_bias))]
+                    except:
+                        print("Debug Check 1",sum(check))
+                        print("Debug Check 1",len(best_score))
+                        pygame.quit()
+                        quit()
                 return master_parameters,score,bias_return
+
+        '''
+        Game Window Updates
+        '''
         sprites.update()
         pipe_group.update()
         sprites.draw(gameDisplay)
         pipe_group.draw(gameDisplay)
+        '''
+        Game Window Updates
+        '''
 
+
+        '''
+        Delete the pipe that has left the screen
+        and add a new one in its place.
+
+        Also Update the current pipe to check for collison of the bird
+        with a pipe
+        '''
         if (pipe[0].x_cord())+pipe_width <= 0:
             for k in pipe:
                 pygame.sprite.Sprite.kill(k)
@@ -323,7 +362,9 @@ def run_game(generation,score,bias_list):
 
         if ((pipe_collision[0].x_cord()+pipe_width)<x_loc):
             pipe_collision = pipe_list[1]
-
+        '''
+        Pipe Updates
+        '''
 
         gen = myfont.render("Genertation {0}".format(generation), 1, (0,0,0))
         highest = myfont.render("Highest Score {0}".format(int(round(score))), 1, (0,0,0))
@@ -412,11 +453,11 @@ while True:
         parameter_list = init_para()
         bias_list = init_bias()
     else:
-        parameter_list1 = [master_parameters]*int(population*0.2)
-        parameter_list2 = make_parameters(master_parameters,int(population*0.8))
+        parameter_list1 = [master_parameters]*int(population*0.4)
+        parameter_list2 = make_parameters(master_parameters,int(population*0.6))
         parameter_list = parameter_list1+parameter_list2
-        bias_list1 = [bias]*int(population*0.2)
-        bias_list2 = make_parameters(bias,int(population*0.8))
+        bias_list1 = [bias]*int(population*0.4)
+        bias_list2 = make_parameters(bias,int(population*0.6))
         bias_list = bias_list1+bias_list2
     '''
     "Kabhi Kabhi Lagta hai apun hi bhagwan hai"
