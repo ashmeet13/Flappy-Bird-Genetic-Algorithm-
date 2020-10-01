@@ -1,3 +1,6 @@
+#amazing game 
+#install pygame and numpy before running 
+
 import pygame
 import random
 import math
@@ -7,7 +10,7 @@ import numpy as np
 '''
 Game Variables
 '''
-
+print("are you ready to play the game")
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 RED = (255,0,0)
