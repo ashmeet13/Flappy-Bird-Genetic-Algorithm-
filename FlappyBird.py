@@ -1,6 +1,3 @@
-#amazing game 
-#install pygame and numpy before running 
-
 import pygame
 import random
 import math
